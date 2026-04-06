@@ -4,7 +4,7 @@ import { useMemo } from "react";
 import { ConnectionProvider, WalletProvider } from "@solana/wallet-adapter-react";
 import { WalletModalProvider } from "@solana/wallet-adapter-react-ui";
 import { WalletAdapterNetwork } from "@solana/wallet-adapter-base";
-import { SolflareWalletAdapter } from "@solflare-wallet/wallet-adapter";
+import { SolflareWalletAdapter } from "@solana/wallet-adapter-wallets"; // ✅ Correct import
 import "@solana/wallet-adapter-react-ui/styles.css";
 
 export function SolTipProviders({ children }: { children: React.ReactNode }) {
