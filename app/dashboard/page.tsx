@@ -18,6 +18,9 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Get network from env to fix Solscan links dynamically
+  const network = process.env.NEXT_PUBLIC_SOLANA_NETWORK || 'devnet';
+
   useEffect(() => { if (connected && publicKey) fetchTips(); }, [connected, publicKey]);
 
   const fetchTips = async () => {
@@ -28,6 +31,7 @@ export default function Dashboard() {
         .select("*")
         .eq("creator", publicKey!.toBase58())
         .order("created_at", { ascending: false });
+      
       if (dbError) throw dbError;
       setTips(data || []);
     } catch (err: any) {
@@ -78,16 +82,23 @@ export default function Dashboard() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
-                {tips.map((tip) => (
-                  <tr key={tip.id} className="hover:bg-slate-50/50 transition-colors">
-                    <td className="px-6 py-4 font-semibold text-slate-900">{formatAmount(tip.amount, tip.token)}</td>
-                    <td className="px-6 py-4 text-slate-600 hidden sm:table-cell font-mono text-sm">{truncateAddress(tip.sender)}</td>
-                    <td className="px-6 py-4 text-slate-500 hidden md:table-cell text-sm">{formatDate(tip.created_at)}</td>
-                    <td className="px-6 py-4">
-                      <a href={`https://solscan.io/tx/${tip.signature}`} target="_blank" rel="noopener noreferrer" className="text-indigo-600 hover:text-indigo-800 flex items-center gap-1 text-sm">View <ExternalLink className="w-3 h-3" /></a>
-                    </td>
-                  </tr>
-                ))}
+                {tips.map((tip) => {
+                  // ✅ FIX: Dynamically add ?cluster=devnet when testing on devnet
+                  const solscanUrl = `https://solscan.io/tx/${tip.signature}${network === 'devnet' ? '?cluster=devnet' : ''}`;
+                  
+                  return (
+                    <tr key={tip.id} className="hover:bg-slate-50/50 transition-colors">
+                      <td className="px-6 py-4 font-semibold text-slate-900">{formatAmount(tip.amount, tip.token)}</td>
+                      <td className="px-6 py-4 text-slate-600 hidden sm:table-cell font-mono text-sm">{truncateAddress(tip.sender)}</td>
+                      <td className="px-6 py-4 text-slate-500 hidden md:table-cell text-sm">{formatDate(tip.created_at)}</td>
+                      <td className="px-6 py-4">
+                        <a href={solscanUrl} target="_blank" rel="noopener noreferrer" className="text-indigo-600 hover:text-indigo-800 flex items-center gap-1 text-sm">
+                          View <ExternalLink className="w-3 h-3" />
+                        </a>
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>
