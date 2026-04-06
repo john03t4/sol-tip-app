@@ -2,16 +2,23 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowRight, Sparkles } from "lucide-react";
+import { ArrowRight, Sparkles, Wallet } from "lucide-react";
 
 export default function Home() {
-  const [handle, setHandle] = useState("");
+  const [walletAddress, setWalletAddress] = useState("");
   const router = useRouter();
 
   const createLink = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!handle.trim()) return;
-    const clean = handle.replace("@", "").toLowerCase().replace(/\s+/g, "");
+    if (!walletAddress.trim()) return;
+    
+    // Basic validation: Solana addresses are base58, 32-44 chars
+    const clean = walletAddress.trim();
+    if (clean.length < 32 || clean.length > 44) {
+      alert("Please enter a valid Solana wallet address (32-44 characters)");
+      return;
+    }
+    
     router.push(`/pay/${clean}`);
   };
 
@@ -31,10 +38,10 @@ export default function Home() {
       <form onSubmit={createLink} className="flex flex-col sm:flex-row gap-3 w-full max-w-md">
         <input
           type="text"
-          value={handle}
-          onChange={(e) => setHandle(e.target.value)}
-          placeholder="Enter X handle (e.g. @ezzy03t4)"
-          className="flex-1 px-4 py-3 rounded-lg border border-slate-300 focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all"
+          value={walletAddress}
+          onChange={(e) => setWalletAddress(e.target.value)}
+          placeholder="Enter Solana wallet address (e.g. 9xQeWvG816bUx9EPjHmaT23yvVM2ZWbrrpZb9PusVFin)"
+          className="flex-1 px-4 py-3 rounded-lg border border-slate-300 focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all font-mono text-sm"
           required
         />
         <button
@@ -44,6 +51,11 @@ export default function Home() {
           Create Link <ArrowRight className="w-4 h-4" />
         </button>
       </form>
+
+      <div className="mt-4 text-sm text-slate-500 flex items-center gap-2">
+        <Wallet className="w-4 h-4" />
+        <span>Don't have an address? <a href="https://solflare.com" target="_blank" rel="noopener" className="text-indigo-600 hover:underline">Get Solflare</a></span>
+      </div>
 
       <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6 text-left max-w-3xl w-full">
         {[
