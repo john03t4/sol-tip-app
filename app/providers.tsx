@@ -1,18 +1,39 @@
 "use client";
 
-import { useMemo } from "react";
-import { ConnectionProvider, WalletProvider } from "@solana/wallet-adapter-react";
+import { useMemo, ReactNode } from "react";
+import {
+  ConnectionProvider,
+  WalletProvider,
+} from "@solana/wallet-adapter-react";
 import { WalletModalProvider } from "@solana/wallet-adapter-react-ui";
 import { WalletAdapterNetwork } from "@solana/wallet-adapter-base";
-import { SolflareWalletAdapter } from "@solana/wallet-adapter-wallets"; // ✅ Correct import
+import { SolflareWalletAdapter } from "@solana/wallet-adapter-wallets";
 import "@solana/wallet-adapter-react-ui/styles.css";
 
-export function SolTipProviders({ children }: { children: React.ReactNode }) {
-  // Defaults to devnet for safe testing. Switch to mainnet-beta before final submission.
-  const network = (process.env.NEXT_PUBLIC_SOLANA_NETWORK as WalletAdapterNetwork) || WalletAdapterNetwork.Devnet;
-  const endpoint = process.env.NEXT_PUBLIC_QUICKNODE_RPC_URL || "https://api.devnet.solana.com";
+// Type augmentation to fix React 18 + Next.js 14 compatibility with wallet adapters
+declare global {
+  namespace JSX {
+    interface IntrinsicElements {
+      "connection-provider": any;
+      "wallet-provider": any;
+      "wallet-modal-provider": any;
+    }
+  }
+}
 
-  const wallets = useMemo(() => [new SolflareWalletAdapter({ network })], [network]);
+export function SolTipProviders({ children }: { children: ReactNode }) {
+  const network =
+    (process.env.NEXT_PUBLIC_SOLANA_NETWORK as WalletAdapterNetwork) ||
+    WalletAdapterNetwork.Devnet;
+
+  const endpoint =
+    process.env.NEXT_PUBLIC_QUICKNODE_RPC_URL ||
+    "https://api.devnet.solana.com";
+
+  const wallets = useMemo(
+    () => [new SolflareWalletAdapter({ network })],
+    [network]
+  );
 
   return (
     <ConnectionProvider endpoint={endpoint}>
