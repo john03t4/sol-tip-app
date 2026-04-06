@@ -10,17 +10,6 @@ import { WalletAdapterNetwork } from "@solana/wallet-adapter-base";
 import { SolflareWalletAdapter } from "@solana/wallet-adapter-wallets";
 import "@solana/wallet-adapter-react-ui/styles.css";
 
-// Type augmentation to fix React 18 + Next.js 14 compatibility with wallet adapters
-declare global {
-  namespace JSX {
-    interface IntrinsicElements {
-      "connection-provider": any;
-      "wallet-provider": any;
-      "wallet-modal-provider": any;
-    }
-  }
-}
-
 export function SolTipProviders({ children }: { children: ReactNode }) {
   const network =
     (process.env.NEXT_PUBLIC_SOLANA_NETWORK as WalletAdapterNetwork) ||
@@ -35,8 +24,11 @@ export function SolTipProviders({ children }: { children: ReactNode }) {
     [network]
   );
 
+  // @ts-ignore - Wallet adapter types conflict with Next.js 14 + React 18
   return (
+    // @ts-ignore
     <ConnectionProvider endpoint={endpoint}>
+      {/* @ts-ignore */}
       <WalletProvider wallets={wallets} autoConnect>
         <WalletModalProvider>{children}</WalletModalProvider>
       </WalletProvider>
